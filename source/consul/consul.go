@@ -98,6 +98,14 @@ func NewSource(opts ...source.Option) source.Source {
 		sp = prefix
 	}
 
+	if b, ok := options.Context.Value(createPrefixIfNotExist{}).(bool); ok && b {
+		kv := client.KV()
+		pair, _, _ := kv.Get(prefix, nil)
+		if pair == nil {
+			kv.Put(&api.KVPair{Key: prefix}, nil)
+		}
+	}
+
 	return &consul{
 		prefix:      prefix,
 		stripPrefix: sp,
